@@ -1,5 +1,4 @@
 const CELL_SIZE = 32.26;
-// Soal no 1: Set canvas size menjadi 600
 const CANVAS_SIZE = 612;
 const REDRAW_INTERVAL = 50;
 const WIDTH = CANVAS_SIZE / CELL_SIZE;
@@ -11,16 +10,12 @@ const DIRECTION = {
   DOWN: 3,
 };
 
-// Soal no 2: Pengaturan Speed (semakin kecil semakin cepat) ubah dari 150 ke 120
-
 function initPosition() {
   return {
     x: Math.floor(Math.random() * Math.floor((CANVAS_SIZE / CELL_SIZE) - 1) + 1),
     y: Math.floor(Math.random() * Math.floor((CANVAS_SIZE / CELL_SIZE) - 3) + 3),
-
   };
 }
-
 
 function initHeadAndBody() {
   let head = initPosition();
@@ -33,7 +28,6 @@ function initHeadAndBody() {
     body: body,
   };
 }
-
 
 function initDirection() {
   return Math.floor(Math.random() * 4);
@@ -67,7 +61,6 @@ function message() {
 
 let snake1 = initSnake('purple');
 
-// Soal no 4: make apples array
 let apples = [{
     color: 'red',
     position: initPosition(),
@@ -81,14 +74,12 @@ let apples = [{
     position: initPosition(),
   },
 ];
-//console.log(apples[0].position,apples[1].position);
 
 function drawCell(ctx, x, y, color) {
   ctx.fillStyle = color;
   ctx.fillRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
 }
 
-// Soal no 6: Pada fungsi drawScore, tambahkan scoreBoard:
 function drawScore(snake) {
   let scoreCanvas;
   if (snake.color == snake1.color) {
@@ -205,6 +196,7 @@ function draw() {
   }, REDRAW_INTERVAL);
 }
 
+// Ular akan teleport ke sisi yang lain apabila menabrak tepi canvas
 function teleport(snake) {
   //console.log(snake.head.x);
   if (snake.head.x < 1) {
@@ -221,7 +213,6 @@ function teleport(snake) {
   }
 }
 
-// Soal no 4: Jadikan apples array
 function eat(snake, apples) {
   for (let i = 0; i < apples.length; i++) {
     let apple = apples[i];
@@ -269,8 +260,10 @@ function eat(snake, apples) {
   }
 }
 
+// Arah gerakan ular
 function moveLeft(snake) {
   console.log(snake.head);
+
   snake.head.x--;
   teleport(snake);
   eat(snake, apples);
@@ -278,6 +271,7 @@ function moveLeft(snake) {
 
 function moveRight(snake) {
   console.log(snake.head);
+
   snake.head.x++;
   teleport(snake);
   eat(snake, apples);
@@ -297,10 +291,9 @@ function moveUp(snake) {
   eat(snake, apples);
 }
 
+// Cek ular bertabrakan atau tidak
 function checkCollision(snakes) {
   let isCollide = false;
-  //this
-  //bug 
   for (let i = 0; i < snakes.length; i++) {
     for (let j = 0; j < snakes.length; j++) {
       for (let k = 1; k < snakes[j].body.length; k++) {
@@ -358,6 +351,7 @@ function move(snake) {
       break;
   }
   moveBody(snake);
+
   // Soal no 6: Check collision dengan snake3
   if (!checkCollision([snake1])) {
     setTimeout(function () {
@@ -373,6 +367,7 @@ function moveBody(snake) {
     x: snake.head.x,
     y: snake.head.y
   });
+
   snake.body.pop();
 }
 
