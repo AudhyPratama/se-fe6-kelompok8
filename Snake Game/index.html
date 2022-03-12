@@ -1,27 +1,26 @@
 <html>
-  <head> </head>
+
+  <head>
+  </head>
   <script type="text/javascript" src="script.js"></script>
+  <link rel="stylesheet" href="style.css">
+
   <body onload="draw();">
-    <h1>Snake</h1>
-    <img
-      id="apple"
-      style="display: none"
-      width="20"
-      height="20"
-      src="assets/image/redApple.svg"
-      alt="Apple"
-    />
-    <canvas
-      id="snakeBoard"
-      width="600"
-      height="600"
-      style="border: 1px solid #000000"
-    ></canvas>
-    <canvas
-      id="score1Board"
-      width="100"
-      height="100"
-      style="border: 1px solid #000000"
-    ></canvas>
+      <!-- <h1>Snake</h1> -->
+      <div class="container">
+          <div class="relative">
+              <canvas id="snakeBoard" width="612" height="612"></canvas>
+          </div>
+          <canvas id="scoreBoard" class="board"></canvas>
+          <canvas id="levelBoard" class="board2"></canvas>
+          <canvas id="speedBoard" class="board3"></canvas>
+          <canvas id="lifeBoard"  class="board4"></canvas>
+
+      </div>
+      <img id="apple" style="display: none;" width="20" height="20" src="./assets/img/apple-red.svg" alt="Apple">
+      <img id="apple2" style="display: none;" width="20" height="20" src="./assets/img/apple-biru.svg" alt="Apple">
+      <img id="life" style="display: none;" width="20" height="20" src="./assets/img/love-red.svg" alt="Life">
   </body>
+
 </html>
+

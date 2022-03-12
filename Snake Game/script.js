@@ -1,8 +1,5 @@
-const CELL_SIZE = 20;
-
-// Set canvas size menjadi 600
-const CANVAS_SIZE = 600;
-
+const CELL_SIZE = 32.26;
+const CANVAS_SIZE = 612;
 const REDRAW_INTERVAL = 50;
 const WIDTH = CANVAS_SIZE / CELL_SIZE;
 const HEIGHT = CANVAS_SIZE / CELL_SIZE;
@@ -13,19 +10,19 @@ const DIRECTION = {
   DOWN: 3,
 };
 
-// Pengaturan Speed (semakin kecil semakin cepat) ubah dari 150 ke 120
-const MOVE_INTERVAL = 120;
-
 function initPosition() {
   return {
-    x: Math.floor(Math.random() * WIDTH),
-    y: Math.floor(Math.random() * HEIGHT),
+    x: Math.floor(Math.random() * Math.floor((CANVAS_SIZE / CELL_SIZE) - 1) + 1),
+    y: Math.floor(Math.random() * Math.floor((CANVAS_SIZE / CELL_SIZE) - 3) + 3),
   };
 }
 
 function initHeadAndBody() {
   let head = initPosition();
-  let body = [{ x: head.x, y: head.y }];
+  let body = [{
+    x: head.x,
+    y: head.y
+  }];
   return {
     head: head,
     body: body,
@@ -42,19 +39,38 @@ function initSnake(color) {
     ...initHeadAndBody(),
     direction: initDirection(),
     score: 0,
+    level: 1,
+    speed: 220,
+    speed1: 1,
+    life: 3,
   };
+
 }
 
-let snake1 = initSnake("purple");
+function message() {
+  var txt;
+  if (confirm("Apakah Mencoba bermain kembali (Ok=Yes or Cancel=No) ?")) {
+    txt = "ya";
+    condition = true;
+  } else {
+    txt = "no";
+    condition = false;
+  }
+  return condition;
+}
 
-// Inisialisasi aple
-let apples = [
-  {
-    color: "red",
+let snake1 = initSnake('purple');
+
+let apples = [{
+    color: 'red',
     position: initPosition(),
   },
   {
-    color: "green",
+    color: 'orange',
+    position: initPosition(),
+  },
+  {
+    color: 'life',
     position: initPosition(),
   },
 ];
@@ -64,27 +80,67 @@ function drawCell(ctx, x, y, color) {
   ctx.fillRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
 }
 
-// Scoreboard
 function drawScore(snake) {
   let scoreCanvas;
   if (snake.color == snake1.color) {
-    scoreCanvas = document.getElementById("score1Board");
+    scoreCanvas = document.getElementById('scoreBoard');
   }
-
-  let scoreCtx = scoreCanvas.getContext("2d");
+  let scoreCtx = scoreCanvas.getContext('2d');
 
   scoreCtx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
-  scoreCtx.font = "30px Arial";
-  scoreCtx.fillStyle = snake.color;
-  scoreCtx.fillText(snake.score, 10, scoreCanvas.scrollHeight / 2);
+  scoreCtx.font = '20px Arial';
+  scoreCtx.fillStyle = "yellow";
+  scoreCtx.fillText(snake.score, 10, 20);
+}
+
+function drawLevel(snake) {
+  let levelCanvas;
+  if (snake.color == snake1.color) {
+    levelCanvas = document.getElementById('levelBoard');
+  }
+  let levelCtx = levelCanvas.getContext('2d');
+
+  levelCtx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+  levelCtx.font = '20px Arial';
+  levelCtx.fillStyle = "yellow";
+  levelCtx.fillText(snake.level, 10, 20);
+}
+
+function drawSpeed(snake) {
+  let SpeedCanvas;
+  if (snake.color == snake1.color) {
+    SpeedCanvas = document.getElementById('speedBoard');
+  }
+  let speedCtx = SpeedCanvas.getContext('2d');
+
+  speedCtx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+  speedCtx.font = '20px Arial';
+  speedCtx.fillStyle = "yellow";
+  speedCtx.fillText(snake.speed1 + "x", 10, SpeedCanvas.scrollHeight / 2);
+}
+
+function drawLife(snake) {
+  let LifeCanvas;
+  if (snake.color == snake1.color) {
+    LifeCanvas = document.getElementById('lifeBoard');
+  }
+  let lifeCtx = LifeCanvas.getContext('2d');
+
+  lifeCtx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+  lifeCtx.font = '20px Arial';
+  lifeCtx.fillStyle = "white";
+  lifeCtx.fillText(snake.life, 10, 20);
 }
 
 function draw() {
   setInterval(function () {
-    let snakeCanvas = document.getElementById("snakeBoard");
-    let ctx = snakeCanvas.getContext("2d");
+    let snakeCanvas = document.getElementById('snakeBoard');
+    let ctx = snakeCanvas.getContext('2d');
+    const bg = new Image();
+    bg.src = './assets/img/background1.png';
 
     ctx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+    ctx.drawImage(bg, 0, 0, CANVAS_SIZE, CANVAS_SIZE);
 
     drawCell(ctx, snake1.head.x, snake1.head.y, snake1.color);
     for (let i = 1; i < snake1.body.length; i++) {
@@ -93,70 +149,143 @@ function draw() {
 
     for (let i = 0; i < apples.length; i++) {
       let apple = apples[i];
+      //console.log(apple);
+      // Soal no 3: DrawImage apple dan gunakan image id:
+      if (i == 0) {
+        var img = document.getElementById('apple');
+        ctx.drawImage(
+          img,
+          apple.position.x * CELL_SIZE,
+          apple.position.y * CELL_SIZE,
+          CELL_SIZE,
+          CELL_SIZE
+        );
+      } else if (i == 1) {
+        var img = document.getElementById('apple2');
+        ctx.drawImage(
+          img,
+          apple.position.x * CELL_SIZE,
+          apple.position.y * CELL_SIZE,
+          CELL_SIZE,
+          CELL_SIZE
+        );
+      } else {
+        const isPrime = num => {
+          for (let i = 2, s = Math.sqrt(num); i <= s; i++)
+            if (num % i === 0) return false;
+          return num > 1;
+        }
+        if (isPrime(snake1.level) && snake1.score == 0) {
+          var img = document.getElementById('life');
+          ctx.drawImage(
+            img,
+            apple.position.x * CELL_SIZE - 2,
+            apple.position.y * CELL_SIZE - 2,
+            CELL_SIZE + 4,
+            CELL_SIZE);
+        }
+      }
 
-      // Gambar apple
-      var img = document.getElementById("apple");
-      ctx.drawImage(
-        img,
-        apple.position.x * CELL_SIZE,
-        apple.position.y * CELL_SIZE,
-        CELL_SIZE,
-        CELL_SIZE,
-      );
     }
 
     drawScore(snake1);
+    drawLevel(snake1);
+    drawSpeed(snake1);
+    drawLife(snake1);
+
   }, REDRAW_INTERVAL);
 }
 
 // Ular akan teleport ke sisi yang lain apabila menabrak tepi canvas
 function teleport(snake) {
-  if (snake.head.x < 0) {
-    snake.head.x = CANVAS_SIZE / CELL_SIZE - 1;
+  //console.log(snake.head.x);
+  if (snake.head.x < 1) {
+    snake.head.x = Math.floor(CANVAS_SIZE / CELL_SIZE - 1);
   }
-  if (snake.head.x >= WIDTH) {
-    snake.head.x = 0;
+  if (snake.head.x >= WIDTH - 1) {
+    snake.head.x = 1;
   }
-  if (snake.head.y < 0) {
-    snake.head.y = CANVAS_SIZE / CELL_SIZE - 1;
+  if (snake.head.y < 3) {
+    snake.head.y = Math.floor(CANVAS_SIZE / CELL_SIZE - 1);
   }
-  if (snake.head.y >= HEIGHT) {
-    snake.head.y = 0;
+  if (snake.head.y >= HEIGHT - 1) {
+    snake.head.y = 3;
   }
 }
 
-// Soal no 4: Jadikan apples array
 function eat(snake, apples) {
   for (let i = 0; i < apples.length; i++) {
     let apple = apples[i];
+    //console.log(snake.head.y,apple.position.y);
     if (snake.head.x == apple.position.x && snake.head.y == apple.position.y) {
+      var audio = new Audio('./assets/audio/eat.mp3');
+      audio.play();
       apple.position = initPosition();
-      snake.score++;
-      snake.body.push({ x: snake.head.x, y: snake.head.y });
+      if (snake.score < 5) {
+        snake.score++;
+      } else {
+        var audio = new Audio('./assets/audio/uplevel.wav');
+        audio.play();
+        snake.score = 0;
+        snake.speed -= 30;
+        snake.speed1++;
+        snake.level++;
+        if (snake.level == 6) {
+          alert('winner');
+          var audio = new Audio('./assets/audio/winner.wav');
+          audio.play();
+          let Message1 = message();
+          if (Message1) {
+            snake.score = 0;
+            snake.speed = 220;
+            snake.speed1 = 1;
+            snake.level = 1;
+            snake.body.splice(0, snake.body.length);
+            snake.life = 3;
+          } else {
+            snake.body.splice(1, snake.body.length);
+            //sengaja buat error
+            snake.head.splice(0, 1);
+          }
+        }
+      }
+      if (apple.color == "life" && snake.life < 3) {
+        snake.life++;
+      }
+      snake.body.push({
+        x: snake.head.x,
+        y: snake.head.y
+      });
     }
   }
 }
 
 // Arah gerakan ular
 function moveLeft(snake) {
+  console.log(snake.head);
+
   snake.head.x--;
   teleport(snake);
   eat(snake, apples);
 }
 
 function moveRight(snake) {
+  console.log(snake.head);
+
   snake.head.x++;
   teleport(snake);
   eat(snake, apples);
 }
 
 function moveDown(snake) {
+  console.log(snake.head);
   snake.head.y++;
   teleport(snake);
   eat(snake, apples);
 }
 
 function moveUp(snake) {
+  console.log(snake.head);
   snake.head.y--;
   teleport(snake);
   eat(snake, apples);
@@ -178,12 +307,30 @@ function checkCollision(snakes) {
     }
   }
   if (isCollide) {
-    // Menambahkan audio
-    var audio = new Audio("game-over.mp3");
-    audio.play();
+    //saat kondisi menabrak tetapi nyawa masih ada
+    if (snakes[0].life > 1) {
+      var audio = new Audio('./assets/audio/dead.mp3');
+      audio.play();
+      snakes[0].life--;
+    } else {
+      var audio = new Audio('./assets/audio/game-over.mp3');
+      audio.play();
+      alert('Game over');
+      let Message2 = message();
+      if (Message2) {
+        snakes[0].score = 0;
+        snakes[0].speed = 220;
+        snakes[0].speed1 = 1;
+        snakes[0].level = 1;
+        snakes[0].body.splice(1, snakes[0].body.length);
+        snakes[0].life = 3;
+      } else {
+        snakes[0].body.splice(1, snakes[0].body.length);
+        //sengaja buat error
+        snakes[0].head.splice(0, 1);
+      }
 
-    alert("Game over");
-    snake1 = initSnake("purple");
+    }
   }
   return isCollide;
 }
@@ -205,19 +352,22 @@ function move(snake) {
   }
   moveBody(snake);
 
-  // Cek ular bertabrakan dengan diri sendiri
-  // Tambahkan ular lain di array jika ingin cek bertabrakan dengan ular lain
+  // Soal no 6: Check collision dengan snake3
   if (!checkCollision([snake1])) {
     setTimeout(function () {
       move(snake);
-    }, MOVE_INTERVAL);
+    }, snake.speed), 100;
   } else {
     initGame();
   }
 }
 
 function moveBody(snake) {
-  snake.body.unshift({ x: snake.head.x, y: snake.head.y });
+  snake.body.unshift({
+    x: snake.head.x,
+    y: snake.head.y
+  });
+
   snake.body.pop();
 }
 
@@ -234,17 +384,25 @@ function turn(snake, direction) {
   }
 }
 
-// Kontrol arah gerakan ular
-document.addEventListener("keydown", function (event) {
-  if (event.key === "ArrowLeft") {
+document.addEventListener('keydown', function (event) {
+  if (event.key === 'ArrowLeft') {
+    var audio = new Audio('./assets/audio/left.mp3');
+    audio.play();
     turn(snake1, DIRECTION.LEFT);
-  } else if (event.key === "ArrowRight") {
+  } else if (event.key === 'ArrowRight') {
+    var audio = new Audio('./assets/audio/right.mp3');
+    audio.play();
     turn(snake1, DIRECTION.RIGHT);
-  } else if (event.key === "ArrowUp") {
+  } else if (event.key === 'ArrowUp') {
+    var audio = new Audio('./assets/audio/up.mp3');
+    audio.play();
     turn(snake1, DIRECTION.UP);
-  } else if (event.key === "ArrowDown") {
+  } else if (event.key === 'ArrowDown') {
+    var audio = new Audio('./assets/audio/down.mp3');
+    audio.play();
     turn(snake1, DIRECTION.DOWN);
   }
+
 });
 
 function initGame() {
