@@ -1,0 +1,25 @@
+.container {
+    position: relative;
+}
+
+.board {
+    position: absolute;
+    top: 13;
+    left: 75;
+}
+
+.board2 {
+    position: absolute;
+    top: 38;
+    left: 75;
+}
+.board3 {
+    position: absolute;
+    top: 527;
+    left: 545;
+}
+.board4 {
+    position: absolute;
+    top: 30;
+    left: 533;
+}
