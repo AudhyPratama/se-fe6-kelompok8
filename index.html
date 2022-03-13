@@ -1,0 +1,28 @@
+<html>
+
+<head>
+</head>
+<script type="text/javascript" src="./script.js"></script>
+<link rel="stylesheet" href="./style.css">
+
+<body onload="draw();">
+    <!-- <h1>Snake</h1> -->
+    <!-- Soal no 3: Tambahkan resource gambar untuk ditampilkan di canvas -->
+    <!-- Soal no 1: Ubah nilai width dan height menjadi 600 pada element canvas:  -->
+    <div class="container">
+        <div class="relative">
+            <canvas id="snakeBoard" width="612" height="612"></canvas>
+        </div>
+        <canvas id="scoreBoard" class="board"></canvas>
+        <canvas id="levelBoard" class="board2"></canvas>
+        <canvas id="speedBoard" class="board3"></canvas>
+        <canvas id="lifeBoard"  class="board4"></canvas>
+
+    </div>
+    <!-- Soal no 6: Tambahkan elemen canvas untuk menampilkan player3:  -->
+    <img id="apple" style="display: none;" width="20" height="20" src="./assets/img/apple-red.svg" alt="Apple">
+    <img id="apple2" style="display: none;" width="20" height="20" src="./assets/img/apple-biru.svg" alt="Apple">
+    <img id="life" style="display: none;" width="20" height="20" src="./assets/img/love-red.svg" alt="Life">
+</body>
+
+</html>
