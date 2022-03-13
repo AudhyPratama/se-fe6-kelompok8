@@ -17,6 +17,117 @@ function initPosition() {
   };
 }
 
+function message() {
+  var txt;
+  if (confirm("Apakah Mencoba bermain kembali (Ok=Yes or Cancel=No) ?")) {
+    txt = "ya";
+    condition = true;
+  } else {
+    txt = "no";
+    condition = false;
+  }
+  return condition;
+}
+
+// deklarasi obstacle sesuai level
+const LEVEL_OBSTACLES = [{ // level 1
+    length: 0,
+    x: 0,
+    y: 0,
+    mode: 'horizontal' // 'horizontal'/'vertical'/'diagonal'
+  },
+  { // level 2
+    length: Math.floor((CANVAS_SIZE / CELL_SIZE) - 5),
+    x: Math.floor((CANVAS_SIZE / CELL_SIZE) - 15),
+    y: Math.floor((CANVAS_SIZE / CELL_SIZE) - 12),
+    mode: 'horizontal' // 'horizontal'/'vertical'/'diagonal'
+  },
+  { // level 3
+    length: Math.floor((CANVAS_SIZE / CELL_SIZE) - 5),
+    x: Math.floor((CANVAS_SIZE / CELL_SIZE) - 15),
+    y: Math.floor((CANVAS_SIZE / CELL_SIZE) - 8),
+    mode: 'horizontal' // 'horizontal'/'vertical'/'diagonal'
+  },
+  { // level 4
+    length: Math.floor((CANVAS_SIZE / CELL_SIZE) - 5),
+    x: Math.floor((CANVAS_SIZE / CELL_SIZE) - 15),
+    y: Math.floor((CANVAS_SIZE / CELL_SIZE) - 4),
+    mode: 'horizontal' // 'horizontal'/'vertical'/'diagonal'
+  },
+  { // level 5
+    length: Math.floor((CANVAS_SIZE / CELL_SIZE) - 5),
+    x: Math.floor((CANVAS_SIZE / CELL_SIZE) - 15),
+    y: Math.floor((CANVAS_SIZE / CELL_SIZE) - 14),
+    mode: 'vertical', // 'horizontal'/'vertical'/'diagonal'
+    multiplier: 2,
+    gap: 12
+  }
+];
+
+function kill(snake, building) {
+  if(building) {
+    snake.head = initPosition()
+  }
+  if (snake.life > 1) {
+    var audio = new Audio('./assets/audio/dead.mp3');
+    audio.play();
+    snake.life--;
+  } else {
+    var audio = new Audio('./assets/audio/game-over.mp3');
+    audio.play();
+    alert('Game over');
+    let Message2 = message();
+    if (Message2) {
+      snake.score = 0;
+      snake.speed = 220;
+      snake.speed1 = 1;
+      snake.level = 1;
+      snake.body.splice(1, snake.body.length);
+      snake.life = 3;
+    } else {
+      snake.body.splice(1, snake.body.length);
+      //sengaja buat error
+      snake.head.splice(0, 1);
+    }
+  }
+}
+
+function advancedDrawObstacle(ctx, snake, index, mode) {
+  for (let j = 0; j < LEVEL_OBSTACLES[index].length; j++) {
+    let x, y;
+    if (LEVEL_OBSTACLES[index].mode === 'horizontal') {
+      x = LEVEL_OBSTACLES[index].x + j;
+      y = LEVEL_OBSTACLES[index].y;
+      if (mode === 'adv') y += LEVEL_OBSTACLES[index].gap;
+    } else if (LEVEL_OBSTACLES[index].mode === 'vertical') {
+      x = LEVEL_OBSTACLES[index].x;
+      y = LEVEL_OBSTACLES[index].y + j;
+      if (mode === 'adv') x += LEVEL_OBSTACLES[index].gap;
+    }
+
+    drawCell(ctx, x, y, '#000000');
+    if (snake.head.x == Number.parseInt(x) && snake.head.y == Number.parseInt(y)) {
+      kill(snake, true);
+      //checkCollision(snake,true);
+    }
+  }
+}
+// fungsi cek tabrakan dengan tembok
+function drawAndEvaluateObstacle(ctx, snake) {
+  if (snake.level < 5) {
+    for (let i = 0; i < snake.level; i++) {
+      advancedDrawObstacle(ctx, snake, i);
+    }
+  } else {
+    advancedDrawObstacle(ctx, snake, 4)
+    if (LEVEL_OBSTACLES[4].gap && LEVEL_OBSTACLES[4].multiplier) {
+      advancedDrawObstacle(ctx, snake, 4, 'adv');
+    }
+  }
+}
+
+
+
 function initHeadAndBody() {
   let head = initPosition();
   let body = [{
@@ -47,17 +158,6 @@ function initSnake(color) {
 
 }
 
-function message() {
-  var txt;
-  if (confirm("Apakah Mencoba bermain kembali (Ok=Yes or Cancel=No) ?")) {
-    txt = "ya";
-    condition = true;
-  } else {
-    txt = "no";
-    condition = false;
-  }
-  return condition;
-}
 
 let snake1 = initSnake('purple');
 
@@ -141,6 +241,9 @@ function draw() {
 
     ctx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
     ctx.drawImage(bg, 0, 0, CANVAS_SIZE, CANVAS_SIZE);
+    //////////////////////////////////
+    drawAndEvaluateObstacle(ctx, snake1);
+    ////////////////////////////////////
 
     drawCell(ctx, snake1.head.x, snake1.head.y, snake1.color);
     for (let i = 1; i < snake1.body.length; i++) {
@@ -151,6 +254,22 @@ function draw() {
       let apple = apples[i];
       //console.log(apple);
       // Soal no 3: DrawImage apple dan gunakan image id:
+
+      // if(snake1.level=="1"){
+      //   LEVEL_OBSTACLES[snake1.level-1].x;
+      //   console.log(LEVEL_OBSTACLES[snake1.level-1].x);
+      // }else if(snake1.level=="1"){
+      //   console.log(LEVEL_OBSTACLES[snake1.level-1].x);
+      // }else if(snake1.level=="2"){
+      //   console.log(LEVEL_OBSTACLES[snake1.level-1].x);
+      // }else if(snake1.level=="3"){
+      //   console.log(LEVEL_OBSTACLES[snake1.level-1].x);
+      // }else if(snake1.level=="4"){
+      //   console.log(LEVEL_OBSTACLES[snake1.level-1].x);
+      // }else if(snake1.level=="5"){
+      //   console.log(LEVEL_OBSTACLES[snake1.level-1].x);
+      // }
+
       if (i == 0) {
         var img = document.getElementById('apple');
         ctx.drawImage(
@@ -262,7 +381,8 @@ function eat(snake, apples) {
 
 // Arah gerakan ular
 function moveLeft(snake) {
-  console.log(snake.head);
+
+  //console.log(snake.head);
 
   snake.head.x--;
   teleport(snake);
@@ -270,29 +390,27 @@ function moveLeft(snake) {
 }
 
 function moveRight(snake) {
-  console.log(snake.head);
-
+  //console.log(snake.head);
   snake.head.x++;
   teleport(snake);
   eat(snake, apples);
 }
 
 function moveDown(snake) {
-  console.log(snake.head);
+  //console.log(snake.head);
   snake.head.y++;
   teleport(snake);
   eat(snake, apples);
 }
 
 function moveUp(snake) {
-  console.log(snake.head);
+  //console.log(snake.head);
   snake.head.y--;
   teleport(snake);
   eat(snake, apples);
 }
 
-// Cek ular bertabrakan atau tidak
-function checkCollision(snakes) {
+function checkCollision(snakes, a) {
   let isCollide = false;
   for (let i = 0; i < snakes.length; i++) {
     for (let j = 0; j < snakes.length; j++) {
@@ -307,30 +425,7 @@ function checkCollision(snakes) {
     }
   }
   if (isCollide) {
-    //saat kondisi menabrak tetapi nyawa masih ada
-    if (snakes[0].life > 1) {
-      var audio = new Audio('./assets/audio/dead.mp3');
-      audio.play();
-      snakes[0].life--;
-    } else {
-      var audio = new Audio('./assets/audio/game-over.mp3');
-      audio.play();
-      alert('Game over');
-      let Message2 = message();
-      if (Message2) {
-        snakes[0].score = 0;
-        snakes[0].speed = 220;
-        snakes[0].speed1 = 1;
-        snakes[0].level = 1;
-        snakes[0].body.splice(1, snakes[0].body.length);
-        snakes[0].life = 3;
-      } else {
-        snakes[0].body.splice(1, snakes[0].body.length);
-        //sengaja buat error
-        snakes[0].head.splice(0, 1);
-      }
-
-    }
+    kill(snakes[0]);
   }
   return isCollide;
 }
