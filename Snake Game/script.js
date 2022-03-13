@@ -3,6 +3,8 @@ const CANVAS_SIZE = 612;
 const REDRAW_INTERVAL = 50;
 const WIDTH = CANVAS_SIZE / CELL_SIZE;
 const HEIGHT = CANVAS_SIZE / CELL_SIZE;
+var saveWall=[];
+var saveWall = [...new Set(saveWall)];
 const DIRECTION = {
   LEFT: 0,
   RIGHT: 1,
@@ -64,10 +66,8 @@ const LEVEL_OBSTACLES = [{ // level 1
   }
 ];
 
-function kill(snake, building) {
-  if(building) {
+function kill(snake) {
     snake.head = initPosition()
-  }
   if (snake.life > 1) {
     var audio = new Audio('./assets/audio/dead.mp3');
     audio.play();
@@ -93,8 +93,24 @@ function kill(snake, building) {
 }
 
 function advancedDrawObstacle(ctx, snake, index, mode) {
+  saveWall.splice(0,saveWall.length);
+  let x, y;
   for (let j = 0; j < LEVEL_OBSTACLES[index].length; j++) {
-    let x, y;
+    //untuk menyimpan data tembok
+    if(snake.level=="2"){
+      saveWall.push([LEVEL_OBSTACLES[1].x + j,LEVEL_OBSTACLES[1].y]);
+    }else if(snake.level=="3"){
+      saveWall.push([LEVEL_OBSTACLES[1].x + j,LEVEL_OBSTACLES[1].y]);
+      saveWall.push([LEVEL_OBSTACLES[2].x + j,LEVEL_OBSTACLES[2].y]);
+    }else if(snake.level=="4"){
+      saveWall.push([LEVEL_OBSTACLES[1].x + j,LEVEL_OBSTACLES[1].y]);
+      saveWall.push([LEVEL_OBSTACLES[2].x + j,LEVEL_OBSTACLES[2].y]);
+      saveWall.push([LEVEL_OBSTACLES[3].x + j,LEVEL_OBSTACLES[3].y]);
+    }else if(snake.level=="5"){
+      saveWall.push([LEVEL_OBSTACLES[4].x,LEVEL_OBSTACLES[4].y+j]);
+      saveWall.push([LEVEL_OBSTACLES[4].x+(LEVEL_OBSTACLES[4].gap),LEVEL_OBSTACLES[4].y+j]);
+    }
+
     if (LEVEL_OBSTACLES[index].mode === 'horizontal') {
       x = LEVEL_OBSTACLES[index].x + j;
       y = LEVEL_OBSTACLES[index].y;
@@ -107,11 +123,13 @@ function advancedDrawObstacle(ctx, snake, index, mode) {
 
     drawCell(ctx, x, y, '#000000');
     if (snake.head.x == Number.parseInt(x) && snake.head.y == Number.parseInt(y)) {
-      kill(snake, true);
+      kill(snake);
       //checkCollision(snake,true);
     }
   }
+  return saveWall;
 }
+
 // fungsi cek tabrakan dengan tembok
 function drawAndEvaluateObstacle(ctx, snake) {
   if (snake.level < 5) {
@@ -252,24 +270,16 @@ function draw() {
 
     for (let i = 0; i < apples.length; i++) {
       let apple = apples[i];
-      //console.log(apple);
-      // Soal no 3: DrawImage apple dan gunakan image id:
 
-      // if(snake1.level=="1"){
-      //   LEVEL_OBSTACLES[snake1.level-1].x;
-      //   console.log(LEVEL_OBSTACLES[snake1.level-1].x);
-      // }else if(snake1.level=="1"){
-      //   console.log(LEVEL_OBSTACLES[snake1.level-1].x);
-      // }else if(snake1.level=="2"){
-      //   console.log(LEVEL_OBSTACLES[snake1.level-1].x);
-      // }else if(snake1.level=="3"){
-      //   console.log(LEVEL_OBSTACLES[snake1.level-1].x);
-      // }else if(snake1.level=="4"){
-      //   console.log(LEVEL_OBSTACLES[snake1.level-1].x);
-      // }else if(snake1.level=="5"){
-      //   console.log(LEVEL_OBSTACLES[snake1.level-1].x);
-      // }
-
+      //untuk mengganti apple yang bentrok dengan wall
+        for(let i=0;i<saveWall.length;i++){
+          if(saveWall[i][0]==apple.position.x && saveWall[i][1]==apple.position.y){
+            //console.log("Bentrok")
+            while(saveWall[i][0]==apple.position.x && saveWall[i][1]==apple.position.y){
+              apple.position=initPosition();
+            }
+          }
+        }
       if (i == 0) {
         var img = document.getElementById('apple');
         ctx.drawImage(
