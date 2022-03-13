@@ -1,4 +1,5 @@
 const CELL_SIZE = 32.26;
+const EYES=5;
 // Soal no 1: Set canvas size menjadi 600
 const CANVAS_SIZE = 612;
 const REDRAW_INTERVAL = 50;
@@ -6,6 +7,7 @@ const WIDTH = CANVAS_SIZE / CELL_SIZE;
 const HEIGHT = CANVAS_SIZE / CELL_SIZE;
 var saveWall=[];
 var saveWall = [...new Set(saveWall)];
+let warna=0;
 const DIRECTION = {
   LEFT: 0,
   RIGHT: 1,
@@ -179,7 +181,8 @@ function initSnake(color) {
 }
 
 
-let snake1 = initSnake('purple');
+let snake1 = initSnake('#4C704B');
+
 
 // Soal no 4: make apples array
 let apples = [{
@@ -267,8 +270,9 @@ function draw() {
     //////////////////////////////////
     drawAndEvaluateObstacle(ctx, snake1);
     ////////////////////////////////////
+    
+    drawCell(ctx, snake1.head.x, snake1.head.y, "red");
 
-    drawCell(ctx, snake1.head.x, snake1.head.y, snake1.color);
     for (let i = 1; i < snake1.body.length; i++) {
       drawCell(ctx, snake1.body[i].x, snake1.body[i].y, snake1.color);
     }
