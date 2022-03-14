@@ -1,5 +1,4 @@
 const CELL_SIZE = 32.26;
-// Soal no 1: Set canvas size menjadi 600
 const CANVAS_SIZE = 612;
 const REDRAW_INTERVAL = 50;
 const WIDTH = CANVAS_SIZE / CELL_SIZE;
@@ -183,7 +182,6 @@ function initSnake(color) {
 let snake1 = initSnake('#4C704B');
 
 
-// Soal no 4: make apples array
 let apples = [{
     color: 'red',
     position: initPosition(),
@@ -204,7 +202,6 @@ function drawCell(ctx, x, y, color) {
   ctx.fillRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
 }
 
-// Soal no 6: Pada fungsi drawScore, tambahkan scoreBoard:
 function drawScore(snake) {
   let scoreCanvas;
   if (snake.color == snake1.color) {
@@ -349,7 +346,6 @@ function teleport(snake) {
   }
 }
 
-// Soal no 4: Jadikan apples array
 function eat(snake, apples) {
   for (let i = 0; i < apples.length; i++) {
     let apple = apples[i];
@@ -463,7 +459,6 @@ function move(snake) {
       break;
   }
   moveBody(snake);
-  // Soal no 6: Check collision dengan snake3
   if (!checkCollision([snake1])) {
     setTimeout(function () {
       move(snake);
