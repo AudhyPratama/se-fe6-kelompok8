@@ -3,6 +3,9 @@ const CANVAS_SIZE = 612;
 const REDRAW_INTERVAL = 50;
 const WIDTH = CANVAS_SIZE / CELL_SIZE;
 const HEIGHT = CANVAS_SIZE / CELL_SIZE;
+var saveWall=[];
+var saveWall = [...new Set(saveWall)];
+let warna=0;
 const DIRECTION = {
   LEFT: 0,
   RIGHT: 1,
@@ -14,6 +17,7 @@ function initPosition() {
   return {
     x: Math.floor(Math.random() * Math.floor((CANVAS_SIZE / CELL_SIZE) - 1) + 1),
     y: Math.floor(Math.random() * Math.floor((CANVAS_SIZE / CELL_SIZE) - 3) + 3),
+
   };
 }
 
@@ -64,10 +68,8 @@ const LEVEL_OBSTACLES = [{ // level 1
   }
 ];
 
-function kill(snake, building) {
-  if(building) {
+function kill(snake) {
     snake.head = initPosition()
-  }
   if (snake.life > 1) {
     var audio = new Audio('./assets/audio/dead.mp3');
     audio.play();
@@ -93,8 +95,24 @@ function kill(snake, building) {
 }
 
 function advancedDrawObstacle(ctx, snake, index, mode) {
+  saveWall.splice(0,saveWall.length);
+  let x, y;
   for (let j = 0; j < LEVEL_OBSTACLES[index].length; j++) {
-    let x, y;
+    //untuk menyimpan data tembok
+    if(snake.level=="2"){
+      saveWall.push([LEVEL_OBSTACLES[1].x + j,LEVEL_OBSTACLES[1].y]);
+    }else if(snake.level=="3"){
+      saveWall.push([LEVEL_OBSTACLES[1].x + j,LEVEL_OBSTACLES[1].y]);
+      saveWall.push([LEVEL_OBSTACLES[2].x + j,LEVEL_OBSTACLES[2].y]);
+    }else if(snake.level=="4"){
+      saveWall.push([LEVEL_OBSTACLES[1].x + j,LEVEL_OBSTACLES[1].y]);
+      saveWall.push([LEVEL_OBSTACLES[2].x + j,LEVEL_OBSTACLES[2].y]);
+      saveWall.push([LEVEL_OBSTACLES[3].x + j,LEVEL_OBSTACLES[3].y]);
+    }else if(snake.level=="5"){
+      saveWall.push([LEVEL_OBSTACLES[4].x,LEVEL_OBSTACLES[4].y+j]);
+      saveWall.push([LEVEL_OBSTACLES[4].x+(LEVEL_OBSTACLES[4].gap),LEVEL_OBSTACLES[4].y+j]);
+    }
+
     if (LEVEL_OBSTACLES[index].mode === 'horizontal') {
       x = LEVEL_OBSTACLES[index].x + j;
       y = LEVEL_OBSTACLES[index].y;
@@ -107,11 +125,13 @@ function advancedDrawObstacle(ctx, snake, index, mode) {
 
     drawCell(ctx, x, y, '#000000');
     if (snake.head.x == Number.parseInt(x) && snake.head.y == Number.parseInt(y)) {
-      kill(snake, true);
+      kill(snake);
       //checkCollision(snake,true);
     }
   }
+  return saveWall;
 }
+
 // fungsi cek tabrakan dengan tembok
 function drawAndEvaluateObstacle(ctx, snake) {
   if (snake.level < 5) {
@@ -127,7 +147,6 @@ function drawAndEvaluateObstacle(ctx, snake) {
 }
 
 
-
 function initHeadAndBody() {
   let head = initPosition();
   let body = [{
@@ -139,6 +158,7 @@ function initHeadAndBody() {
     body: body,
   };
 }
+
 
 function initDirection() {
   return Math.floor(Math.random() * 4);
@@ -159,7 +179,8 @@ function initSnake(color) {
 }
 
 
-let snake1 = initSnake('purple');
+let snake1 = initSnake('#4C704B');
+
 
 let apples = [{
     color: 'red',
@@ -174,6 +195,7 @@ let apples = [{
     position: initPosition(),
   },
 ];
+//console.log(apples[0].position,apples[1].position);
 
 function drawCell(ctx, x, y, color) {
   ctx.fillStyle = color;
@@ -232,6 +254,17 @@ function drawLife(snake) {
   lifeCtx.fillText(snake.life, 10, 20);
 }
 
+function drawSnakeHead(ctx){
+  var img = document.getElementById("head"+snake1.direction);
+  ctx.drawImage(
+    img,
+    snake1.head.x * CELL_SIZE,
+    snake1.head.y * CELL_SIZE,
+    CELL_SIZE,
+    CELL_SIZE
+  );
+}
+
 function draw() {
   setInterval(function () {
     let snakeCanvas = document.getElementById('snakeBoard');
@@ -244,32 +277,35 @@ function draw() {
     //////////////////////////////////
     drawAndEvaluateObstacle(ctx, snake1);
     ////////////////////////////////////
+    
+    
+    drawSnakeHead(ctx);
+    // var img = document.getElementById("head"+snake1.direction);
+    // //console.log(snake1.direction);
+    // ctx.drawImage(
+    //   img,
+    //   snake1.head.x * CELL_SIZE,
+    //   snake1.head.y * CELL_SIZE,
+    //   CELL_SIZE,
+    //   CELL_SIZE
+    // );
 
-    drawCell(ctx, snake1.head.x, snake1.head.y, snake1.color);
     for (let i = 1; i < snake1.body.length; i++) {
       drawCell(ctx, snake1.body[i].x, snake1.body[i].y, snake1.color);
     }
 
     for (let i = 0; i < apples.length; i++) {
       let apple = apples[i];
-      //console.log(apple);
-      // Soal no 3: DrawImage apple dan gunakan image id:
 
-      // if(snake1.level=="1"){
-      //   LEVEL_OBSTACLES[snake1.level-1].x;
-      //   console.log(LEVEL_OBSTACLES[snake1.level-1].x);
-      // }else if(snake1.level=="1"){
-      //   console.log(LEVEL_OBSTACLES[snake1.level-1].x);
-      // }else if(snake1.level=="2"){
-      //   console.log(LEVEL_OBSTACLES[snake1.level-1].x);
-      // }else if(snake1.level=="3"){
-      //   console.log(LEVEL_OBSTACLES[snake1.level-1].x);
-      // }else if(snake1.level=="4"){
-      //   console.log(LEVEL_OBSTACLES[snake1.level-1].x);
-      // }else if(snake1.level=="5"){
-      //   console.log(LEVEL_OBSTACLES[snake1.level-1].x);
-      // }
-
+      //untuk mengganti apple yang bentrok dengan wall
+        for(let i=0;i<saveWall.length;i++){
+          if(saveWall[i][0]==apple.position.x && saveWall[i][1]==apple.position.y){
+            //console.log("Bentrok")
+            while(saveWall[i][0]==apple.position.x && saveWall[i][1]==apple.position.y){
+              apple.position=initPosition();
+            }
+          }
+        }
       if (i == 0) {
         var img = document.getElementById('apple');
         ctx.drawImage(
@@ -280,7 +316,7 @@ function draw() {
           CELL_SIZE
         );
       } else if (i == 1) {
-        var img = document.getElementById('apple2');
+        var img = document.getElementById('apple'+2);
         ctx.drawImage(
           img,
           apple.position.x * CELL_SIZE,
@@ -315,9 +351,8 @@ function draw() {
   }, REDRAW_INTERVAL);
 }
 
-// Ular akan teleport ke sisi yang lain apabila menabrak tepi canvas
 function teleport(snake) {
-  //console.log(snake.head.x);
+  //console.log(snake.head.y);
   if (snake.head.x < 1) {
     snake.head.x = Math.floor(CANVAS_SIZE / CELL_SIZE - 1);
   }
@@ -379,11 +414,8 @@ function eat(snake, apples) {
   }
 }
 
-// Arah gerakan ular
 function moveLeft(snake) {
-
   //console.log(snake.head);
-
   snake.head.x--;
   teleport(snake);
   eat(snake, apples);
@@ -412,6 +444,8 @@ function moveUp(snake) {
 
 function checkCollision(snakes, a) {
   let isCollide = false;
+  //this
+  //bug 
   for (let i = 0; i < snakes.length; i++) {
     for (let j = 0; j < snakes.length; j++) {
       for (let k = 1; k < snakes[j].body.length; k++) {
@@ -446,8 +480,6 @@ function move(snake) {
       break;
   }
   moveBody(snake);
-
-  // Soal no 6: Check collision dengan snake3
   if (!checkCollision([snake1])) {
     setTimeout(function () {
       move(snake);
@@ -462,7 +494,6 @@ function moveBody(snake) {
     x: snake.head.x,
     y: snake.head.y
   });
-
   snake.body.pop();
 }
 
